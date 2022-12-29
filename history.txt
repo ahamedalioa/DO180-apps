@@ -1,0 +1,1240 @@
+[student@workstation ~]$ oc get route 
+NAME             HOST/PORT                                          PATH   SERVICES         PORT       TERMINATION     WILDCARD
+php-helloworld   php-helloworld-ahamedalioa.apps.ocp4.example.com          php-helloworld   8080-tcp   edge/Redirect   None
+[student@workstation ~]$ oc delete route php-helloworld 
+route.route.openshift.io "php-helloworld" deleted
+[student@workstation ~]$ 
+[student@workstation ~]$ oc get route 
+No resources found in ahamedalioa namespace.
+[student@workstation ~]$ oc get svc 
+NAME             TYPE       CLUSTER-IP       EXTERNAL-IP   PORT(S)                         AGE
+php-helloworld   NodePort   172.30.205.242   <none>        8080:30003/TCP,8443:30548/TCP   60m
+[student@workstation ~]$ 
+[student@workstation ~]$ oc edit svc/php-helloworld
+service/php-helloworld edited
+[student@workstation ~]$ oc describe svc 
+Name:              php-helloworld
+Namespace:         ahamedalioa
+Labels:            app=php-helloworld
+                   app.kubernetes.io/component=php-helloworld
+                   app.kubernetes.io/instance=php-helloworld
+                   app.kubernetes.io/name=php-helloworld
+                   app.kubernetes.io/part-of=php-helloworld-app
+                   app.openshift.io/runtime=php
+                   app.openshift.io/runtime-version=7.4-ubi8
+Annotations:       app.openshift.io/vcs-ref: 
+                   app.openshift.io/vcs-uri: https://github.com/sanjurajrh/php-helloworld
+                   openshift.io/generated-by: OpenShiftWebConsole
+Selector:          app=php-helloworld,deploymentconfig=php-helloworld
+Type:              ClusterIP
+IP Family Policy:  SingleStack
+IP Families:       IPv4
+IP:                172.30.205.242
+IPs:               172.30.205.242
+Port:              8080-tcp  8080/TCP
+TargetPort:        8080/TCP
+Endpoints:         10.10.0.53:8080,10.8.0.36:8080,10.9.0.19:8080
+Port:              8443-tcp  8443/TCP
+TargetPort:        8443/TCP
+Endpoints:         10.10.0.53:8443,10.8.0.36:8443,10.9.0.19:8443
+Session Affinity:  None
+Events:            <none>
+[student@workstation ~]$ 
+[student@workstation ~]$ 
+[student@workstation ~]$ oc describe svc 
+Name:              php-helloworld
+Namespace:         ahamedalioa
+Labels:            app=php-helloworld
+                   app.kubernetes.io/component=php-helloworld
+                   app.kubernetes.io/instance=php-helloworld
+                   app.kubernetes.io/name=php-helloworld
+                   app.kubernetes.io/part-of=php-helloworld-app
+                   app.openshift.io/runtime=php
+                   app.openshift.io/runtime-version=7.4-ubi8
+Annotations:       app.openshift.io/vcs-ref: 
+                   app.openshift.io/vcs-uri: https://github.com/sanjurajrh/php-helloworld
+                   openshift.io/generated-by: OpenShiftWebConsole
+Selector:          app=php-helloworld,deploymentconfig=php-helloworld
+Type:              ClusterIP
+IP Family Policy:  SingleStack
+IP Families:       IPv4
+IP:                172.30.205.242
+IPs:               172.30.205.242
+Port:              8080-tcp  8080/TCP
+TargetPort:        8080/TCP
+Endpoints:         10.10.0.53:8080,10.8.0.36:8080,10.9.0.19:8080
+Port:              8443-tcp  8443/TCP
+TargetPort:        8443/TCP
+Endpoints:         10.10.0.53:8443,10.8.0.36:8443,10.9.0.19:8443
+Session Affinity:  None
+Events:            <none>
+[student@workstation ~]$ # Service -- iscting like a Load balancer which has a stable IP address and a port on which it listens on 
+[student@workstation ~]$ # Service -- is acting like a Load balancer which has a stable IP address and a port on which it listens on 
+[student@workstation ~]$ 
+[student@workstation ~]$ 
+[student@workstation ~]$ # Ingress or Route 
+[student@workstation ~]$ oc get route 
+No resources found in ahamedalioa namespace.
+[student@workstation ~]$ oc expose svc/php-helloworld -h 
+Expose containers internally as services or externally via routes.
+
+ There is also the ability to expose a deployment config, replication controller, service, or pod as a new service on a
+specified port. If no labels are specified, the new object will reuse the labels from the object it exposes.
+
+Usage:
+  oc expose (-f FILENAME | TYPE NAME) [--port=port] [--protocol=TCP|UDP|SCTP] [--target-port=number-or-name]
+[--name=name] [--external-ip=external-ip-of-service] [--type=type] [flags]
+
+Examples:
+  # Create a route based on service nginx. The new route will reuse nginx's labels
+  oc expose service nginx
+  
+  # Create a route and specify your own label and route name
+  oc expose service nginx -l name=myroute --name=fromdowntown
+  
+  # Create a route and specify a host name
+  oc expose service nginx --hostname=www.example.com
+  
+  # Create a route with a wildcard
+  oc expose service nginx --hostname=x.example.com --wildcard-policy=Subdomain
+  # This would be equivalent to *.example.com. NOTE: only hosts are matched by the wildcard; subdomains would not be
+included
+  
+  # Expose a deployment configuration as a service and use the specified port
+  oc expose dc ruby-hello-world --port=8080
+  
+  # Expose a service as a route in the specified path
+  oc expose service nginx --path=/nginx
+  
+  # Expose a service using different generators
+  oc expose service nginx --name=exposed-svc --port=12201 --protocol="TCP" --generator="service/v2"
+  oc expose service nginx --name=my-route --port=12201 --generator="route/v1"
+  
+  # Exposing a service using the "route/v1" generator (default) will create a new exposed route with the "--name"
+provided
+  # (or the name of the service otherwise). You may not specify a "--protocol" or "--target-port" option when using this
+generator
+
+Options:
+      --allow-missing-template-keys=true: If true, ignore any errors in templates when a field or map key is missing in
+the template. Only applies to golang and jsonpath output formats.
+      --cluster-ip='': ClusterIP to be assigned to the service. Leave empty to auto-allocate, or set to 'None' to create
+a headless service.
+      --dry-run='none': Must be "none", "server", or "client". If client strategy, only print the object that would be
+sent, without sending it. If server strategy, submit server-side request without persisting the resource.
+      --external-ip='': Additional external IP address (not managed by Kubernetes) to accept for the service. If this IP
+is routed to a node, the service can be accessed by this IP in addition to its generated service IP.
+      --field-manager='kubectl-expose': Name of the manager used to track field ownership.
+  -f, --filename=[]: Filename, directory, or URL to files identifying the resource to expose a service
+      --generator='': The name of the API generator to use. Defaults to "route/v1". Available generators include
+"service/v1", "service/v2", and "route/v1". "service/v1" will automatically name the port "default", while "service/v2"
+will leave it unnamed.
+      --hostname='': Set a hostname for the new route
+  -k, --kustomize='': Process the kustomization directory. This flag can't be used together with -f or -R.
+  -l, --labels='': Labels to apply to the service created by this call.
+      --load-balancer-ip='': IP to assign to the LoadBalancer. If empty, an ephemeral IP will be created and used
+(cloud-provider specific).
+      --name='': The name for the newly created object.
+  -o, --output='': Output format. One of:
+json|yaml|name|go-template|go-template-file|template|templatefile|jsonpath|jsonpath-as-json|jsonpath-file.
+      --override-type='merge': The method used to override the generated object: json, merge, or strategic.
+      --overrides='': An inline JSON override for the generated object. If this is non-empty, it is used to override the
+generated object. Requires that the object supply a valid apiVersion field.
+      --path='': Set a path for the new route
+      --port='': The port that the resource should serve on.
+      --protocol='': The network protocol for the service to be created. Default is 'TCP'.
+  -R, --recursive=false: Process the directory used in -f, --filename recursively. Useful when you want to manage
+related manifests organized within the same directory.
+      --save-config=false: If true, the configuration of current object will be saved in its annotation. Otherwise, the
+annotation will be unchanged. This flag is useful when you want to perform kubectl apply on this object in the future.
+      --selector='': A label selector to use for this service. Only equality-based selector requirements are supported.
+If empty (the default) infer the selector from the replication controller or replica set.)
+      --session-affinity='': If non-empty, set the session affinity for the service to this; legal values: 'None',
+'ClientIP'
+      --show-managed-fields=false: If true, keep the managedFields when printing objects in JSON or YAML format.
+      --target-port='': Name or number for the port on the container that the service should direct traffic to.
+Optional.
+      --template='': Template string or path to template file to use when -o=go-template, -o=go-template-file. The
+template format is golang templates [http://golang.org/pkg/text/template/#pkg-overview].
+      --type='': Type for this service: ClusterIP, NodePort, LoadBalancer, or ExternalName. Default is 'ClusterIP'.
+      --wildcard-policy='': Sets the WildcardPolicy for the hostname, the default is "None". Valid values are "None" and
+"Subdomain"
+
+Use "oc options" for a list of global command-line options (applies to all commands).
+[student@workstation ~]$ 
+[student@workstation ~]$ oc expose svc/php-helloworld --port=8080 
+route.route.openshift.io/php-helloworld exposed
+[student@workstation ~]$ oc get route 
+NAME             HOST/PORT                                          PATH   SERVICES         PORT   TERMINATION   WILDCARD
+php-helloworld   php-helloworld-ahamedalioa.apps.ocp4.example.com          php-helloworld   8080                 None
+[student@workstation ~]$ oc describe route php-helloworld 
+Name:			php-helloworld
+Namespace:		ahamedalioa
+Created:		9 seconds ago
+Labels:			app=php-helloworld
+			app.kubernetes.io/component=php-helloworld
+			app.kubernetes.io/instance=php-helloworld
+			app.kubernetes.io/name=php-helloworld
+			app.kubernetes.io/part-of=php-helloworld-app
+			app.openshift.io/runtime=php
+			app.openshift.io/runtime-version=7.4-ubi8
+Annotations:		openshift.io/host.generated=true
+Requested Host:		php-helloworld-ahamedalioa.apps.ocp4.example.com
+			   exposed on router default (host router-default.apps.ocp4.example.com) 9 seconds ago
+Path:			<none>
+TLS Termination:	<none>
+Insecure Policy:	<none>
+Endpoint Port:		8080
+
+Service:	php-helloworld
+Weight:		100 (100%)
+Endpoints:	10.10.0.53:8080, 10.8.0.36:8080, 10.9.0.19:8080
+[student@workstation ~]$ curl php-helloworld-ahamedalioa.apps.ocp4.example.com
+Hello, World! php version is 7.4.19
+OpenShift is awesome!!!
+K8s provides new features
+[student@workstation ~]$ 
+[student@workstation ~]$ 
+
+
+
+
+
+[student@workstation ~]$ oc create route -h 
+Expose containers externally via secured routes.
+
+ Three types of secured routes are supported: edge, passthrough, and reencrypt. If you want to create unsecured routes,
+see "oc expose -h".
+
+Usage:
+  oc create route [flags]
+
+Available Commands:
+  edge        Create a route that uses edge TLS termination
+  passthrough Create a route that uses passthrough TLS termination
+  reencrypt   Create a route that uses reencrypt TLS termination
+
+Use "oc <command> --help" for more information about a given command.
+Use "oc options" for a list of global command-line options (applies to all commands).
+[student@workstation ~]$ oc describe routes.route.openshift.io 
+Name:			php-helloworld
+Namespace:		ahamedalioa
+Created:		28 minutes ago
+Labels:			app=php-helloworld
+			app.kubernetes.io/component=php-helloworld
+			app.kubernetes.io/instance=php-helloworld
+			app.kubernetes.io/name=php-helloworld
+			app.kubernetes.io/part-of=php-helloworld-app
+			app.openshift.io/runtime=php
+			app.openshift.io/runtime-version=7.4-ubi8
+Annotations:		openshift.io/host.generated=true
+Requested Host:		php-helloworld-ahamedalioa.apps.ocp4.example.com
+			   exposed on router default (host router-default.apps.ocp4.example.com) 28 minutes ago
+Path:			<none>
+TLS Termination:	<none>
+Insecure Policy:	<none>
+Endpoint Port:		8080
+
+Service:	php-helloworld
+Weight:		100 (100%)
+Endpoints:	10.10.0.53:8080, 10.8.0.36:8080, 10.9.0.19:8080
+[student@workstation ~]$ 
+[student@workstation ~]$ 
+[student@workstation ~]$ 
+[student@workstation ~]$ 
+[student@workstation ~]$ 
+[student@workstation ~]$ oc get co
+[student@workstation ~]$ oc get co
+NAME                                       VERSION   AVAILABLE   PROGRESSING   DEGRADED   SINCE   MESSAGE
+authentication                             4.10.3    True        False         False      153d    
+baremetal                                  4.10.3    True        False         False      153d    
+cloud-controller-manager                   4.10.3    True        False         False      153d    
+cloud-credential                           4.10.3    True        False         False      153d    
+cluster-autoscaler                         4.10.3    True        False         False      153d    
+config-operator                            4.10.3    True        False         False      153d    
+console                                    4.10.3    True        False         False      114m    
+csi-snapshot-controller                    4.10.3    True        False         False      153d    
+dns                                        4.10.3    True        False         False      153d    
+etcd                                       4.10.3    True        False         False      153d    
+image-registry                             4.10.3    True        False         False      153d    
+ingress                                    4.10.3    True        False         False      114m    
+insights                                   4.10.3    True        False         False      153d    
+kube-apiserver                             4.10.3    True        False         False      153d    
+kube-controller-manager                    4.10.3    True        False         False      153d    
+kube-scheduler                             4.10.3    True        False         False      153d    
+kube-storage-version-migrator              4.10.3    True        False         False      153d    
+machine-api                                4.10.3    True        False         False      153d    
+machine-approver                           4.10.3    True        False         False      153d    
+machine-config                             4.10.3    True        False         False      153d    
+marketplace                                4.10.3    True        False         False      153d    
+monitoring                                 4.10.3    True        False         False      153d    
+network                                    4.10.3    True        False         False      153d    
+node-tuning                                4.10.3    True        False         False      153d    
+openshift-apiserver                        4.10.3    True        False         False      153d    
+openshift-controller-manager               4.10.3    True        False         False      2d      
+openshift-samples                          4.10.3    True        False         False      153d    
+operator-lifecycle-manager                 4.10.3    True        False         False      153d    
+operator-lifecycle-manager-catalog         4.10.3    True        False         False      153d    
+operator-lifecycle-manager-packageserver   4.10.3    True        False         False      2d      
+service-ca                                 4.10.3    True        False         False      153d    
+storage                                    4.10.3    True        False         False      153d    
+[student@workstation ~]$ oc get projects | grep ingress
+openshift-ingress                                                    Active
+openshift-ingress-canary                                             Active
+openshift-ingress-operator                                           Active
+[student@workstation ~]$ oc get pods -n openshift-ingress
+NAME                              READY   STATUS    RESTARTS   AGE
+router-default-699bc7764c-4fhtc   1/1     Running   6          153d
+router-default-699bc7764c-fxfqt   1/1     Running   5          153d
+[student@workstation ~]$ 
+[student@workstation ~]$ 
+[student@workstation ~]$ 
+[student@workstation ~]$ 
+[student@workstation ~]$ oc get pods -n openshift-ingress -o wide 
+NAME                              READY   STATUS    RESTARTS   AGE    IP              NODE       NOMINATED NODE   READINESS GATES
+router-default-699bc7764c-4fhtc   1/1     Running   6          153d   192.168.50.11   master02   <none>           <none>
+router-default-699bc7764c-fxfqt   1/1     Running   5          153d   192.168.50.12   master03   <none>           <none>
+[student@workstation ~]$ oc get pods -n openshift-ingress-operator 
+NAME                                READY   STATUS    RESTARTS   AGE
+ingress-operator-65c8dd77bb-xhsq6   2/2     Running   9          153d
+[student@workstation ~]$ oc describe pods/ingress-operator-65c8dd77bb-xhsq6 -n openshift-ingress-operator
+Name:                 ingress-operator-65c8dd77bb-xhsq6
+Namespace:            openshift-ingress-operator
+Priority:             2000000000
+Priority Class Name:  system-cluster-critical
+Node:                 master03/192.168.50.12
+Start Time:           Thu, 28 Jul 2022 12:35:45 -0400
+Labels:               name=ingress-operator
+                      pod-template-hash=65c8dd77bb
+Annotations:          k8s.v1.cni.cncf.io/network-status:
+                        [{
+                            "name": "openshift-sdn",
+                            "interface": "eth0",
+                            "ips": [
+                                "10.10.0.11"
+                            ],
+                            "default": true,
+                            "dns": {}
+                        }]
+                      k8s.v1.cni.cncf.io/networks-status:
+                        [{
+                            "name": "openshift-sdn",
+                            "interface": "eth0",
+                            "ips": [
+                                "10.10.0.11"
+                            ],
+                            "default": true,
+                            "dns": {}
+                        }]
+                      openshift.io/scc: restricted
+Status:               Running
+IP:                   10.10.0.11
+IPs:
+  IP:           10.10.0.11
+Controlled By:  ReplicaSet/ingress-operator-65c8dd77bb
+Containers:
+  ingress-operator:
+    Container ID:  cri-o://1d598dcbf69664258dcaac323edf331b523fac4aeefb205c493bbb1dc015d054
+    Image:         quay.io/openshift-release-dev/ocp-v4.0-art-dev@sha256:55e8aa4d81098ee1174434bbdbfaf884295899c5e4593366a34d6c9144a1ce60
+    Image ID:      quay.io/openshift-release-dev/ocp-v4.0-art-dev@sha256:55e8aa4d81098ee1174434bbdbfaf884295899c5e4593366a34d6c9144a1ce60
+    Port:          <none>
+    Host Port:     <none>
+    Command:
+      ingress-operator
+      start
+      --namespace
+      $(WATCH_NAMESPACE)
+      --image
+      $(IMAGE)
+      --canary-image
+      $(CANARY_IMAGE)
+      --release-version
+      $(RELEASE_VERSION)
+    State:          Running
+      Started:      Wed, 28 Dec 2022 23:12:42 -0500
+    Ready:          True
+    Restart Count:  5
+    Requests:
+      cpu:     10m
+      memory:  56Mi
+    Environment:
+      RELEASE_VERSION:  4.10.3
+      WATCH_NAMESPACE:  openshift-ingress-operator (v1:metadata.namespace)
+      IMAGE:            quay.io/openshift-release-dev/ocp-v4.0-art-dev@sha256:8ec836136d39baa7807780e6e443cbcc189107d530ad27988df50f8f6d10b479
+      CANARY_IMAGE:     quay.io/openshift-release-dev/ocp-v4.0-art-dev@sha256:55e8aa4d81098ee1174434bbdbfaf884295899c5e4593366a34d6c9144a1ce60
+    Mounts:
+      /etc/pki/ca-trust/extracted/pem from trusted-ca (ro)
+      /var/run/secrets/kubernetes.io/serviceaccount from kube-api-access-sf578 (ro)
+      /var/run/secrets/openshift/serviceaccount from bound-sa-token (ro)
+  kube-rbac-proxy:
+    Container ID:  cri-o://f65cb5fea2e79fca875cc72b346245e0dc1e87a9bc847faa8d6acb5727ae0103
+    Image:         quay.io/openshift-release-dev/ocp-v4.0-art-dev@sha256:f1472992e770cc0194da355264653e3a7c82448cb79f4fc0f051a3277291b0a9
+    Image ID:      quay.io/openshift-release-dev/ocp-v4.0-art-dev@sha256:f1472992e770cc0194da355264653e3a7c82448cb79f4fc0f051a3277291b0a9
+    Port:          9393/TCP
+    Host Port:     0/TCP
+    Args:
+      --logtostderr
+      --secure-listen-address=:9393
+      --tls-cipher-suites=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256,TLS_RSA_WITH_AES_128_CBC_SHA256,TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA256,TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256
+      --upstream=http://127.0.0.1:60000/
+      --tls-cert-file=/etc/tls/private/tls.crt
+      --tls-private-key-file=/etc/tls/private/tls.key
+    State:          Running
+      Started:      Wed, 28 Dec 2022 23:12:47 -0500
+    Ready:          True
+    Restart Count:  4
+    Requests:
+      cpu:        10m
+      memory:     40Mi
+    Environment:  <none>
+    Mounts:
+      /etc/tls/private from metrics-tls (ro)
+      /var/run/secrets/kubernetes.io/serviceaccount from kube-api-access-sf578 (ro)
+Conditions:
+  Type              Status
+  Initialized       True 
+  Ready             True 
+  ContainersReady   True 
+  PodScheduled      True 
+Volumes:
+  metrics-tls:
+    Type:        Secret (a volume populated by a Secret)
+    SecretName:  metrics-tls
+    Optional:    false
+  trusted-ca:
+    Type:      ConfigMap (a volume populated by a ConfigMap)
+    Name:      trusted-ca
+    Optional:  false
+  bound-sa-token:
+    Type:                    Projected (a volume that contains injected data from multiple sources)
+    TokenExpirationSeconds:  3600
+  kube-api-access-sf578:
+    Type:                    Projected (a volume that contains injected data from multiple sources)
+    TokenExpirationSeconds:  3607
+    ConfigMapName:           kube-root-ca.crt
+    ConfigMapOptional:       <nil>
+    DownwardAPI:             true
+    ConfigMapName:           openshift-service-ca.crt
+    ConfigMapOptional:       <nil>
+QoS Class:                   Burstable
+Node-Selectors:              kubernetes.io/os=linux
+                             node-role.kubernetes.io/master=
+Tolerations:                 node-role.kubernetes.io/master:NoSchedule op=Exists
+                             node.kubernetes.io/memory-pressure:NoSchedule op=Exists
+                             node.kubernetes.io/not-ready:NoExecute op=Exists for 120s
+                             node.kubernetes.io/unreachable:NoExecute op=Exists for 120s
+Events:
+  Type     Reason          Age   From     Message
+  ----     ------          ----  ----     -------
+  Warning  FailedMount     118m  kubelet  MountVolume.SetUp failed for volume "trusted-ca" : failed to sync configmap cache: timed out waiting for the condition
+  Warning  FailedMount     118m  kubelet  MountVolume.SetUp failed for volume "metrics-tls" : failed to sync secret cache: timed out waiting for the condition
+  Normal   AddedInterface  118m  multus   Add eth0 [10.10.0.11/23] from openshift-sdn
+  Normal   Pulling         118m  kubelet  Pulling image "quay.io/openshift-release-dev/ocp-v4.0-art-dev@sha256:55e8aa4d81098ee1174434bbdbfaf884295899c5e4593366a34d6c9144a1ce60"
+  Normal   Pulled          117m  kubelet  Successfully pulled image "quay.io/openshift-release-dev/ocp-v4.0-art-dev@sha256:55e8aa4d81098ee1174434bbdbfaf884295899c5e4593366a34d6c9144a1ce60" in 43.384081415s
+  Normal   Created         117m  kubelet  Created container ingress-operator
+  Normal   Started         117m  kubelet  Started container ingress-operator
+  Normal   Pulled          117m  kubelet  Container image "quay.io/openshift-release-dev/ocp-v4.0-art-dev@sha256:f1472992e770cc0194da355264653e3a7c82448cb79f4fc0f051a3277291b0a9" already present on machine
+  Normal   Created         117m  kubelet  Created container kube-rbac-proxy
+  Normal   Started         117m  kubelet  Started container kube-rbac-proxy
+[student@workstation ~]$ 
+[student@workstation ~]$ oc new-project example1
+Now using project "example1" on server "https://api.ocp4.example.com:6443".
+
+You can add applications to this project with the 'new-app' command. For example, try:
+
+    oc new-app rails-postgresql-example
+
+to build a new example application in Ruby. Or use kubectl to deploy a simple Kubernetes application:
+
+    kubectl create deployment hello-node --image=k8s.gcr.io/e2e-test-images/agnhost:2.33 -- /agnhost serve-hostname
+
+[student@workstation ~]$ oc get all
+No resources found in example1 namespace.
+[student@workstation ~]$ oc get sa
+NAME       SECRETS   AGE
+builder    2         35s
+default    2         35s
+deployer   2         35s
+[student@workstation ~]$ oc get secret
+NAME                       TYPE                                  DATA   AGE
+builder-dockercfg-thh96    kubernetes.io/dockercfg               1      50s
+builder-token-6k74h        kubernetes.io/service-account-token   4      50s
+builder-token-w5xb8        kubernetes.io/service-account-token   4      51s
+default-dockercfg-sg75z    kubernetes.io/dockercfg               1      50s
+default-token-drj4d        kubernetes.io/service-account-token   4      50s
+default-token-s5grq        kubernetes.io/service-account-token   4      50s
+deployer-dockercfg-gv2zd   kubernetes.io/dockercfg               1      50s
+deployer-token-2b5mx       kubernetes.io/service-account-token   4      50s
+deployer-token-h2kqz       kubernetes.io/service-account-token   4      51s
+[student@workstation ~]$ oc new-app --name=secureapp --docker-image=quay.io/redhattraining/hello-world-nginx:v1.0
+Flag --docker-image has been deprecated, Deprecated flag use --image
+--> Found container image 44eaa13 (3 years old) from quay.io for "quay.io/redhattraining/hello-world-nginx:v1.0"
+
+    Red Hat Universal Base Image 8 
+    ------------------------------ 
+    The Universal Base Image is designed and engineered to be the base layer for all of your containerized applications, middleware and utilities. This base image is freely redistributable, but Red Hat only supports Red Hat technologies through subscriptions for Red Hat products. This image is maintained by Red Hat and updated regularly.
+
+    Tags: base rhel8
+
+    * An image stream tag will be created as "secureapp:v1.0" that will track this image
+
+--> Creating resources ...
+    imagestream.image.openshift.io "secureapp" created
+    deployment.apps "secureapp" created
+    service "secureapp" created
+--> Success
+    Application is not exposed. You can expose services to the outside world by executing one or more of the commands below:
+     'oc expose service/secureapp' 
+    Run 'oc status' to view your app.
+[student@workstation ~]$ oc get all
+NAME                             READY   STATUS    RESTARTS   AGE
+pod/secureapp-586bcb5df6-shs2z   1/1     Running   0          28s
+
+NAME                TYPE        CLUSTER-IP       EXTERNAL-IP   PORT(S)    AGE
+service/secureapp   ClusterIP   172.30.176.148   <none>        8080/TCP   30s
+
+NAME                        READY   UP-TO-DATE   AVAILABLE   AGE
+deployment.apps/secureapp   1/1     1            1           30s
+
+NAME                                   DESIRED   CURRENT   READY   AGE
+replicaset.apps/secureapp-586bcb5df6   1         1         1       28s
+replicaset.apps/secureapp-cfdd9686c    0         0         0       30s
+
+NAME                                       IMAGE REPOSITORY                                                      TAGS   UPDATED
+imagestream.image.openshift.io/secureapp   image-registry.openshift-image-registry.svc:5000/example1/secureapp   v1.0   28 seconds ago
+[student@workstation ~]$ oc exec -it pod/secureapp-586bcb5df6-shs2z /bin/bash
+kubectl exec [POD] [COMMAND] is DEPRECATED and will be removed in a future version. Use kubectl exec [POD] -- [COMMAND] instead.
+bash-4.4$ 
+bash-4.4$ curl localhost:8080
+<html>
+  <body>
+    <h1>Hello, world from nginx!</h1>
+  </body>
+</html>
+bash-4.4$ exit
+exit
+[student@workstation ~]$ whatis openssl 
+openssl: nothing appropriate.
+[student@workstation ~]$ sudo mandb -q
+[student@workstation ~]$ ls /etc/pki/tls/certs/
+ca-bundle.crt  ca-bundle.trust.crt  idm-ca.pem
+[student@workstation ~]$ whatis openssl 
+openssl (1ssl)       - OpenSSL command line tool
+[student@workstation ~]$ man -k openssl
+RAND (7ssl)          - the OpenSSL random generator
+config (5ssl)        - OpenSSL CONF library configuration files
+crypto (7ssl)        - OpenSSL cryptographic library
+des_modes (7ssl)     - the variants of DES and other crypto algorithms of OpenSSL
+Net::SSLeay (3pm)    - Perl extension for using OpenSSL
+openssl (1ssl)       - OpenSSL command line tool
+openssl-asn1parse (1ssl) - ASN.1 parsing tool
+openssl-c_rehash (1ssl) - Create symbolic links to files named by the hash values
+openssl-ca (1ssl)    - sample minimal CA application
+openssl-ciphers (1ssl) - SSL cipher display and cipher list tool
+openssl-cms (1ssl)   - CMS utility
+openssl-crl (1ssl)   - CRL utility
+openssl-crl2pkcs7 (1ssl) - Create a PKCS#7 structure from a CRL and certificates
+openssl-dgst (1ssl)  - perform digest operations
+openssl-dhparam (1ssl) - DH parameter manipulation and generation
+openssl-dsa (1ssl)   - DSA key processing
+openssl-dsaparam (1ssl) - DSA parameter manipulation and generation
+openssl-ec (1ssl)    - EC key processing
+openssl-ecparam (1ssl) - EC parameter manipulation and generation
+openssl-enc (1ssl)   - symmetric cipher routines
+openssl-engine (1ssl) - load and query engines
+openssl-errstr (1ssl) - lookup error codes
+openssl-gendsa (1ssl) - generate a DSA private key from a set of parameters
+openssl-genpkey (1ssl) - generate a private key
+openssl-genrsa (1ssl) - generate an RSA private key
+openssl-list (1ssl)  - list algorithms and features
+openssl-nseq (1ssl)  - create or examine a Netscape certificate sequence
+openssl-ocsp (1ssl)  - Online Certificate Status Protocol utility
+openssl-passwd (1ssl) - compute password hashes
+openssl-pkcs12 (1ssl) - PKCS#12 file utility
+openssl-pkcs7 (1ssl) - PKCS#7 utility
+openssl-pkcs8 (1ssl) - PKCS#8 format private key conversion tool
+openssl-pkey (1ssl)  - public or private key processing tool
+openssl-pkeyparam (1ssl) - public key algorithm parameter processing tool
+openssl-pkeyutl (1ssl) - public key algorithm utility
+openssl-prime (1ssl) - compute prime numbers
+openssl-rand (1ssl)  - generate pseudo-random bytes
+openssl-rehash (1ssl) - Create symbolic links to files named by the hash values
+openssl-req (1ssl)   - PKCS#10 certificate request and certificate generating utility
+openssl-rsa (1ssl)   - RSA key processing tool
+openssl-rsautl (1ssl) - RSA utility
+openssl-s_client (1ssl) - SSL/TLS client program
+openssl-s_server (1ssl) - SSL/TLS server program
+openssl-s_time (1ssl) - SSL/TLS performance timing program
+openssl-sess_id (1ssl) - SSL/TLS session handling utility
+openssl-smime (1ssl) - S/MIME utility
+openssl-speed (1ssl) - test library performance
+openssl-spkac (1ssl) - SPKAC printing and generating utility
+openssl-srp (1ssl)   - maintain SRP password file
+openssl-storeutl (1ssl) - STORE utility
+openssl-ts (1ssl)    - Time Stamping Authority tool (client/server)
+openssl-verify (1ssl) - Utility to verify certificates
+openssl-version (1ssl) - print OpenSSL version information
+openssl-x509 (1ssl)  - Certificate display and signing utility
+openssl.cnf (5ssl)   - OpenSSL CONF library configuration files
+passphrase-encoding (7ssl) - How diverse parts of OpenSSL treat pass phrases character encoding
+proxy-certificates (7ssl) - Proxy certificates in OpenSSL
+ssl (7ssl)           - OpenSSL SSL/TLS library
+version (1ssl)       - print OpenSSL version information
+[student@workstation ~]$ ls
+Desktop  DO180  DO180-apps  Documents  Downloads  local  Music  Pictures  Public  Templates  token  Videos
+[student@workstation ~]$ man openssl-req
+[student@workstation ~]$ # openssl genrsa -out key.pem 2048
+[student@workstation ~]$         openssl req -new -key key.pem -out req.pem
+Can't open key.pem for reading, No such file or directory
+139727214581568:error:02001002:system library:fopen:No such file or directory:crypto/bio/bss_file.c:69:fopen('key.pem','r')
+139727214581568:error:2006D080:BIO routines:BIO_new_file:no such file:crypto/bio/bss_file.c:76:
+unable to load Private Key
+[student@workstation ~]$ 
+[student@workstation ~]$ #         openssl req -new -key key.pem -out req.pem
+[student@workstation ~]$ # openssl genrsa -out key.pem 2048
+[student@workstation ~]$ 
+[student@workstation ~]$ 
+[student@workstation ~]$ ls
+Desktop  DO180  DO180-apps  Documents  Downloads  local  Music  Pictures  Public  Templates  token  Videos
+[student@workstation ~]$ 
+[student@workstation ~]$ openssl genrsa -out example.key 2048
+Generating RSA private key, 2048 bit long modulus (2 primes)
+...............................+++++
+....+++++
+e is 65537 (0x010001)
+[student@workstation ~]$ ls example.key 
+example.key
+[student@workstation ~]$ openssl req -new -key example.key -out example.csr 
+You are about to be asked to enter information that will be incorporated
+into your certificate request.
+What you are about to enter is what is called a Distinguished Name or a DN.
+There are quite a few fields but you can leave some blank
+For some fields there will be a default value,
+If you enter '.', the field will be left blank.
+-----
+Country Name (2 letter code) [XX]:US
+State or Province Name (full name) []:North Carolina
+Locality Name (eg, city) [Default City]:Raleeigh
+Organization Name (eg, company) [Default Company Ltd]:Red Hat 
+Organizational Unit Name (eg, section) []:Red Hat Training
+Common Name (eg, your name or your server's hostname) []:mysecureapp.apps.ocp4.example.com
+Email Address []:
+
+Please enter the following 'extra' attributes
+to be sent with your certificate request
+A challenge password []:
+An optional company name []:
+[student@workstation ~]$ rct cat-cert example.csr 
+Unable to read certificate file 'example.csr': Error loading certificate: example.csr
+[student@workstation ~]$ 
+[student@workstation ~]$ openssl x509 -req -days 365 -in example.csr -signkey example.key -out example.crt
+Signature ok
+subject=C = US, ST = North Carolina, L = Raleeigh, O = "Red Hat ", OU = Red Hat Training, CN = mysecureapp.apps.ocp4.example.com
+Getting Private key
+[student@workstation ~]$ 
+[student@workstation ~]$ 
+[student@workstation ~]$ rct cat-cert example.crt 
+
++-------------------------------------------+
+	Identity Certificate
++-------------------------------------------+
+
+Certificate:
+	Path: example.crt
+	Version: 1.0
+	Serial: 363187447450734247681935435346826611473139901342
+	Start Date: 2022-12-29 06:30:03+00:00
+	End Date: 2023-12-29 06:30:03+00:00
+	Alt Name: 
+
+Subject:
+	C: US
+	CN: mysecureapp.apps.ocp4.example.com
+	L: Raleeigh
+	O: Red Hat 
+	OU: Red Hat Training
+	ST: North Carolina
+
+Issuer:
+	C: US
+	CN: mysecureapp.apps.ocp4.example.com
+	L: Raleeigh
+	O: Red Hat 
+	OU: Red Hat Training
+	ST: North Carolina
+
+[student@workstation ~]$ oc create route -h 
+Expose containers externally via secured routes.
+
+ Three types of secured routes are supported: edge, passthrough, and reencrypt. If you want to create unsecured routes,
+see "oc expose -h".
+
+Usage:
+  oc create route [flags]
+
+Available Commands:
+  edge        Create a route that uses edge TLS termination
+  passthrough Create a route that uses passthrough TLS termination
+  reencrypt   Create a route that uses reencrypt TLS termination
+
+Use "oc <command> --help" for more information about a given command.
+Use "oc options" for a list of global command-line options (applies to all commands).
+[student@workstation ~]$ 
+[student@workstation ~]$ 
+[student@workstation ~]$ oc create route edge -h 
+[student@workstation ~]$ oc create route edge -h 
+Create a route that uses edge TLS termination.
+
+ Specify the service (either just its name or using type/name syntax) that the generated route should expose via the
+--service flag.
+
+Usage:
+  oc create route edge [NAME] --service=SERVICE [flags]
+
+Examples:
+  # Create an edge route named "my-route" that exposes the frontend service
+  oc create route edge my-route --service=frontend
+  
+  # Create an edge route that exposes the frontend service and specify a path
+  # If the route name is omitted, the service name will be used
+  oc create route edge --service=frontend --path /assets
+
+Options:
+      --allow-missing-template-keys=true: If true, ignore any errors in templates when a field or map key is missing in
+the template. Only applies to golang and jsonpath output formats.
+      --ca-cert='': Path to a CA certificate file.
+      --cert='': Path to a certificate file.
+      --dry-run='none': Must be "none", "server", or "client". If client strategy, only print the object that would be
+sent, without sending it. If server strategy, submit server-side request without persisting the resource.
+      --hostname='': Set a hostname for the new route
+      --insecure-policy='': Set an insecure policy for the new route
+      --key='': Path to a key file.
+  -o, --output='': Output format. One of:
+json|yaml|name|go-template|go-template-file|template|templatefile|jsonpath|jsonpath-as-json|jsonpath-file.
+      --path='': Path that the router watches to route traffic to the service.
+      --port='': Name of the service port or number of the container port the route will route traffic to
+      --save-config=false: If true, the configuration of current object will be saved in its annotation. Otherwise, the
+annotation will be unchanged. This flag is useful when you want to perform kubectl apply on this object in the future.
+      --service='': Name of the service that the new route is exposing
+      --show-managed-fields=false: If true, keep the managedFields when printing objects in JSON or YAML format.
+      --template='': Template string or path to template file to use when -o=go-template, -o=go-template-file. The
+template format is golang templates [http://golang.org/pkg/text/template/#pkg-overview].
+      --validate=false: If true, use a schema to validate the input before sending it
+      --wildcard-policy='': Sets the WilcardPolicy for the hostname, the default is "None". valid values are "None" and
+"Subdomain"
+
+Use "oc options" for a list of global command-line options (applies to all commands).
+[student@workstation ~]$ oc create route passthrouh -h 
+[student@workstation ~]$ oc create route passthrough -h 
+Create a route that uses passthrough TLS termination.
+
+ Specify the service (either just its name or using type/name syntax) that the generated route should expose via the
+--service flag.
+
+Usage:
+  oc create route passthrough [NAME] --service=SERVICE [flags]
+
+Examples:
+  # Create a passthrough route named "my-route" that exposes the frontend service
+  oc create route passthrough my-route --service=frontend
+  
+  # Create a passthrough route that exposes the frontend service and specify
+  # a host name. If the route name is omitted, the service name will be used
+  oc create route passthrough --service=frontend --hostname=www.example.com
+
+Options:
+      --allow-missing-template-keys=true: If true, ignore any errors in templates when a field or map key is missing in
+the template. Only applies to golang and jsonpath output formats.
+      --dry-run='none': Must be "none", "server", or "client". If client strategy, only print the object that would be
+sent, without sending it. If server strategy, submit server-side request without persisting the resource.
+      --hostname='': Set a hostname for the new route
+      --insecure-policy='': Set an insecure policy for the new route
+  -o, --output='': Output format. One of:
+json|yaml|name|go-template|go-template-file|template|templatefile|jsonpath|jsonpath-as-json|jsonpath-file.
+      --port='': Name of the service port or number of the container port the route will route traffic to
+      --save-config=false: If true, the configuration of current object will be saved in its annotation. Otherwise, the
+annotation will be unchanged. This flag is useful when you want to perform kubectl apply on this object in the future.
+      --service='': Name of the service that the new route is exposing
+      --show-managed-fields=false: If true, keep the managedFields when printing objects in JSON or YAML format.
+      --template='': Template string or path to template file to use when -o=go-template, -o=go-template-file. The
+template format is golang templates [http://golang.org/pkg/text/template/#pkg-overview].
+      --validate=false: If true, use a schema to validate the input before sending it
+      --wildcard-policy='': Sets the WilcardPolicy for the hostname, the default is "None". valid values are "None" and
+"Subdomain"
+
+Use "oc options" for a list of global command-line options (applies to all commands).
+[student@workstation ~]$ 
+[student@workstation ~]$ 
+[student@workstation ~]$ oc get svc
+NAME        TYPE        CLUSTER-IP       EXTERNAL-IP   PORT(S)    AGE
+secureapp   ClusterIP   172.30.176.148   <none>        8080/TCP   17m
+[student@workstation ~]$ oc create route edge --service=secureapp --key=example.key --cert=example.crt
+route.route.openshift.io/secureapp created
+[student@workstation ~]$ oc get route 
+NAME        HOST/PORT                                  PATH   SERVICES    PORT       TERMINATION   WILDCARD
+secureapp   secureapp-example1.apps.ocp4.example.com          secureapp   8080-tcp   edge          None
+[student@workstation ~]$ rct cat-cert example.crt 
+
++-------------------------------------------+
+	Identity Certificate
++-------------------------------------------+
+
+Certificate:
+	Path: example.crt
+	Version: 1.0
+	Serial: 363187447450734247681935435346826611473139901342
+	Start Date: 2022-12-29 06:30:03+00:00
+	End Date: 2023-12-29 06:30:03+00:00
+	Alt Name: 
+
+Subject:
+	C: US
+	CN: mysecureapp.apps.ocp4.example.com
+	L: Raleeigh
+	O: Red Hat 
+	OU: Red Hat Training
+	ST: North Carolina
+
+Issuer:
+	C: US
+	CN: mysecureapp.apps.ocp4.example.com
+	L: Raleeigh
+	O: Red Hat 
+	OU: Red Hat Training
+	ST: North Carolina
+
+[student@workstation ~]$ firefox https://secureapp-example1.apps.ocp4.example.com & 
+[1] 36911
+[student@workstation ~]$ oc get route 
+NAME        HOST/PORT                                  PATH   SERVICES    PORT       TERMINATION   WILDCARD
+secureapp   secureapp-example1.apps.ocp4.example.com          secureapp   8080-tcp   edge          None
+[1]+  Done                    firefox https://secureapp-example1.apps.ocp4.example.com
+[student@workstation ~]$ oc delete route/secureapp
+route.route.openshift.io "secureapp" deleted
+[student@workstation ~]$ oc get route 
+No resources found in example1 namespace.
+[student@workstation ~]$ oc create route edge --service=secureapp --key=example.key --cert=example.crt --hostname=mysecureapp.apps.ocp4.example.com
+route.route.openshift.io/secureapp created
+[student@workstation ~]$ oc get route 
+NAME        HOST/PORT                           PATH   SERVICES    PORT       TERMINATION   WILDCARD
+secureapp   mysecureapp.apps.ocp4.example.com          secureapp   8080-tcp   edge          None
+[student@workstation ~]$ firefox https://openssl genrsa -out key.pem 2048
+[student@workstation ~]$         openssl req -new -key key.pem -out req.pem
+Can't open key.pem for reading, No such file or directory
+140560803571520:error:02001002:system library:fopen:No such file or directory:crypto/bio/bss_file.c:69:fopen('key.pem','r')
+140560803571520:error:2006D080:BIO routines:BIO_new_file:no such file:crypto/bio/bss_file.c:76:
+unable to load Private Key
+[student@workstation ~]$ firefox https://mysecureapp.apps.ocp4.example.com & 
+[1] 37264
+[student@workstation ~]$ history 
+    1  clear
+    2  exit
+    3  exit
+    4  lab configure
+    5  lab-configure
+    6  git config --global credential.helper cache
+    7  git config --global credential.helper 'cache --timeout=3600'
+    8  git clone https://github.com/ahamedalioa/DO180-apps.git
+    9  ls
+   10  cd DO180-apps/
+   11  git status
+   12  git checkout -b testbranch
+   13  echo "DO180" > TEST
+   14  git add .
+   15  git commit -m "DO180"
+   16  git push --set-upstream origin testbranch
+   17  vim ~/token
+   18  ls -ld ~/token
+   19  cat ~/token
+   20  lab manage-lifecycle start
+   21  podman login registry.redhat.io
+   22  podman run --name mysql-db registry.redhat.io/rhel8/mysql-80:1
+   23  podman ps
+   24  podman ps -a
+   25  podman logs mysql-db
+   26  podman run --name mysql -d -e MYSQL_USER=user1 -e MYSQL_PASSWORD=mypa55 -e MYSQL_DATABASE=items -e MYSQL_ROOT_PASSWORD=r00tpa55 registry.redhat.io/rhel8/mysql-80:1
+   27  podman ps
+   28  podman cp ~/DO180/labs/manage-lifecycle/db.sql mysql:/
+   29  podman exec mysql -c 'mysql -uuser1 -pmypa55 items < /db.sql'
+   30  podman exec mysql -C 'mysql -uuser1 -pmypa55 items < /db.sql'
+   31  podman ps
+   32  ls -ld ~/DO180/labs/manage-lifecycle/db.sql 
+   33  podman  exec -it mysql -c 'mysql -uuser1 -pmypa55 items < /db.sql'
+   34  podman  exec -it mysql -c mysql -uuser1 -pmypa55 items < /db.sql
+   35  podman exec -it mysql bash 
+   36  podman run --name mysql-2 -it  registry.redhat.io/rhel8/mysql-80:1 /bin/bash
+   37  podman ps -a
+   38  podman exec mysql /bin/bash -c 'mysql -uuser1 -pmypa55 -e "select * from items.Projects;"'
+   39  lab manage-lifecycle finish
+   40  lab manage-storage start
+   41  mkdir -vp /home/student/local/mysql
+   42  sudo semanage fcontext -a -t container_file_t '/home/student/local/mysql(/.*)?'
+   43  ls -ldZ /home/student/local/mysql
+   44  sudo restorecon -R /home/student/local/mysql
+   45  ls -ldZ /home/student/local/mysql
+   46  podman unshare chown 27:27 /home/student/local/mysql
+   47  podman login registry.redhat.io
+   48  podman pull registry.redhat.io/rhel8/mysql-80:1
+   49  podman images
+   50  podman inspect image mysql-80
+   51  podman inspect mysql-80
+   52  podman run --name persist-db -d -v /home/student/local/mysql:/var/lib/mysql/data -e MYSQL_USER=user1 -e MYSQL_PASSWORD=mypa55 -e MYSQL_DATABASE=items -e MYSQL_ROOT_PASSWORD=r00tpa55 registry.redhat.io/rhel8/mysql-80:1
+   53  podman ps
+   54  ls -ld /home/student/local/mysql/items
+   55  podman unshare ls -ld /home/student/local/mysql/items
+   56  lab manage-storage finish
+   57  lab manage-networking start
+   58  podman login registry.redhat.io
+   59  podman run --name mysqldb-port -d -v /home/student/local/mysql:/var/lib/mysql/data -p 13306:3306 -e MYSQL_USER=user1 -e MYSQL_PASSWORD=mypa55 -e MYSQL_DATABASE=items -e MYSQL_ROOT_PASSWORD=r00tpa55 registry.redhat.io/rhel8/mysql-80:1
+   60  podman ps
+   61  podm
+   62  podman ps --format="{{.ID}} {{.Names}} {{.Ports}}"
+   63  mysql -uuser1 -h127.0.0.1 -pmypa55 -P13306 items < /home/student/DO180/labs/manage-networking/db.sql
+   64  podman exec -it mysqldb-port mysql -uroot items -e "SELECT * FROM Item"
+   65  mysql -uuser1 -h 127.0.0.1 -pmypa55 -P13306 items -e "SELECT * FROM Item"
+   66  podman exec -it mysqldb-port /bin/bash
+   67  lab manage-networking finish
+   68  login quay.io
+   69  cat /run/user/1000/containers/auth.json 
+   70  podman search mysql --filter=is-official
+   71  lab image-operations start
+   72  podman login quay.io
+   73  podman run -d --name official-httpd -p 8180:80 quay.io/redhattraining/httpd-parent
+   74  podman ps
+   75  podman exec -it official-httpd /bin/bash
+   76  curl 127.0.0.1:8180/do180.html
+   77  podman diff official-httpd
+   78  podman stop official-httpd
+   79  podman commit -a 'ahamedali' official-httpd do180-custom-httpd
+   80  podman images
+   81  source /usr/local/etc/ocp4.config
+   82  podman tag do180-custom-httpd quay.io/${RHT_OCP4_QUAY_USER}/do180-custom-httpd:v1.0
+   83  podman images
+   84  podman push quay.io/${RHT_OCP4_QUAY_USER}/do180-custom-httpd:v1.0
+   85  podman images
+   86  podman pull -q quay.io/${RHT_OCP4_QUAY_USER}/do180-custom-httpd:v1.0
+   87  podman images
+   88  podman run -d --name test-httpd -p 8280:80 ${RHT_OCP4_QUAY_USER}/do180-custom-httpd:v1.0
+   89  podman ps
+   90  curl http://localhost:8280/do180.html
+   91  lab image-operations finish
+   92  lab dockerfile-create start
+   93  vim ~/DO180/labs/dockerfile-create/Containerfile
+   94  cd ~/DO180/labs/dockerfile-create
+   95  podman build --layers=false -t do180/apache .
+   96  podman images
+   97  podman run --name lab-apache  -d -p 10080:80 do180/apache
+   98  podman ps
+   99  curl -s 127.0.0.1:10080
+  100  lab dockerfile-create finish
+  101  oc login -u ${RHT_OCP4_DEV_USER} -p ${RHT_OCP4_DEV_PASSWORD} ${RHT_OCP4_MASTER_API}
+  102  oc login -u admin -p redhat 
+  103  ls
+  104  echo ${RHT_OCP4_DEV_USER}
+  105  source /usr/local/etc/ocp4.config
+  106  echo ${RHT_OCP4_DEV_USER}
+  107  oc new-project ${RHT_OCP4_DEV_USER}-mysql-openshift
+  108  oc new-app --template=mysql-persistent -p MYSQL_USER=user1 -p MYSQL_PASSWORD=mypa55 -p MYSQL_DATABASE=testdb -p MYSQL_ROOT_PASSWORD=r00tpa55 -p VOLUME_CAPACITY=10Gi
+  109  oc get pods
+  110  oc describe pod mysql-1-5vfn4
+  111  oc decribe pod mysql-1-deploy
+  112  oc describe pod mqsql-1-deploy
+  113  mysql get svc
+  114  oc get svc
+  115  oc describe mysql
+  116  oc describe service mysql
+  117  oc get pvc
+  118  oc describe pvc/mysql | grep -i Used
+  119  oc port-forward mysql-1-5dfr7 3306:3306
+  120  oc delete project ${RHT_OCP4_DEV_USER}-mysql-openshift
+  121  lab openshift-resources finish
+  122  mysql -uuser1 -pmypa55 --protocol tcp -h localhost
+  123  lab dockerfile-review start
+  124  cd ~/DO180/labs/
+  125  cd ~/DO180/labs/dockerfile-review/
+  126  ls
+  127  vim Containerfile 
+  128  cat Containerfile 
+  129  id apache
+  130  ls
+  131  podman build --layers=false -t do180/custom-apache .
+  132  podman images
+  133  podman run -d --name containerfile -p 20080:8080 do180/custom-apache
+  134  podman ps
+  135  curl -s 127.0.0.1:20080
+  136  lab dockerfile-review grade
+  137  lab dockerfile-review finish
+  138  podman images
+  139  oc login https://quay.io
+  140  oc login quay.io
+  141  podman login quay.io
+  142  oc get ns | grep -i ahamedalioa
+  143  oc whoami -t
+  144  config
+  145  oc login -u admin -p redhat
+  146  oc whoami -t
+  147  ls -a
+  148  ls -a .kube/config 
+  149  cat .kube/config
+  150  pwd
+  151  vim ~/.vimrc
+  152  lab openshift-resources start
+  153  ls -l /usr/local/etc/ocp4.config
+  154  source /usr/local/etc/ocp4.config
+  155  oc login -u admin -p redhat
+  156  oc new-project ahamedalioa
+  157  oc whoami --show-console
+  158  oc get all
+  159  oc describe svc/php-helloworld
+  160  dig php-helloworld-ahamedalioa.apps.ocp4.example.com
+  161  ssh lab@utility
+  162  dig sridhar.apps.ocp4.example.com
+  163  cat /usr/local/etc/ocp4.config 
+  164  # *.apps.ocp4.example.com IN A 192.168.50.254 
+  165  oc get all
+  166  oc get nodes
+  167  oc debug nodes/master02 
+  168  oc get svc
+  169  oc create service -h
+  170  oc edit svc/php-helloworld
+  171  oc describe svc/php-helloworld
+  172  curl master01:30591
+  173  curl master01.ocp4.example.com:30591
+  174  curl master02.ocp4.example.com:30591
+  175  curl master03.ocp4.example.com:30591
+  176  oc edit svc/php-helloworld
+  177  oc describe svc/php-helloworld
+  178  curl master01.ocp4.example.com:30003
+  179  curl master02.ocp4.example.com:30003
+  180  curl master03.ocp4.example.com:30003
+  181  # Route 
+  182  oc get route 
+  183  curl php-helloworld-ahamedalioa.apps.ocp4.example.com
+  184  oc create route -h
+  185  oc get all
+  186  oc describe deployment
+  187  oc edit deployment/php-helloworld
+  188  oc get pods -w
+  189  oc get deployment
+  190  oc get pods
+  191  oc get pods -o wide 
+  192  oc describe svc
+  193  # OpenshiftSDN -- network plugin 
+  194  # two networks -- a) Service network b) pods network
+  195  ssh lab@utility
+  196  exit
+  197  oc get route 
+  198  oc delete route php-helloworld 
+  199  oc get route 
+  200  oc get svc 
+  201  oc edit svc/php-helloworld
+  202  oc describe svc 
+  203  # Service -- iscting like a Load balancer which has a stable IP address and a port on which it listens on 
+  204  # Service -- is acting like a Load balancer which has a stable IP address and a port on which it listens on 
+  205  # Ingress or Route 
+  206  oc get route 
+  207  oc expose svc/php-helloworld -h 
+  208  oc expose svc/php-helloworld --port=8080 
+  209  oc get route 
+  210  oc describe route php-helloworld 
+  211  curl php-helloworld-ahamedalioa.apps.ocp4.example.com
+  212  oc create route -h 
+  213  oc describe routes.route.openshift.io 
+  214  oc get co
+  215  oc get projects | grep ingress
+  216  oc get pods -n openshift-ingress
+  217  oc get pods -n openshift-ingress -o wide 
+  218  oc get pods -n openshift-ingress-operator 
+  219  oc describe pods/ingress-operator-65c8dd77bb-xhsq6 -n openshift-ingress-operator
+  220  oc new-project example1
+  221  oc get all
+  222  oc get sa
+  223  oc get secret
+  224  oc new-app --name=secureapp --docker-image=quay.io/redhattraining/hello-world-nginx:v1.0
+  225  oc get all
+  226  oc exec -it pod/secureapp-586bcb5df6-shs2z /bin/bash
+  227  whatis openssl 
+  228  sudo mandb -q
+  229  ls /etc/pki/tls/certs/
+  230  whatis openssl 
+  231  man -k openssl
+  232  ls
+  233  man openssl-req
+  234  # openssl genrsa -out key.pem 2048
+  235          openssl req -new -key key.pem -out req.pem
+  236  #         openssl req -new -key key.pem -out req.pem
+  237  # openssl genrsa -out key.pem 2048
+  238  ls
+  239  openssl genrsa -out example.key 2048
+  240  ls example.key 
+  241  openssl req -new -key example.key -out example.csr 
+  242  rct cat-cert example.csr 
+  243  openssl x509 -req -days 365 -in example.csr -signkey example.key -out example.crt
+  244  rct cat-cert example.crt 
+  245  oc create route -h 
+  246  oc create route edge -h 
+  247  oc create route passthrough -h 
+  248  oc get svc
+  249  oc create route edge --service=secureapp --key=example.key --cert=example.crt
+  250  oc get route 
+  251  rct cat-cert example.crt 
+  252  firefox https://secureapp-example1.apps.ocp4.example.com & 
+  253  oc get route 
+  254  oc delete route/secureapp
+  255  oc get route 
+  256  oc create route edge --service=secureapp --key=example.key --cert=example.crt --hostname=mysecureapp.apps.ocp4.example.com
+  257  oc get route 
+  258  firefox https://openssl genrsa -out key.pem 2048
+  259          openssl req -new -key key.pem -out req.pem
+  260  firefox https://mysecureapp.apps.ocp4.example.com & 
+  261  history 
+[1]+  Done                    firefox https://mysecureapp.apps.ocp4.example.com
+[student@workstation ~]$ oc get all
+NAME                             READY   STATUS    RESTARTS   AGE
+pod/secureapp-586bcb5df6-shs2z   1/1     Running   0          28m
+
+NAME                TYPE        CLUSTER-IP       EXTERNAL-IP   PORT(S)    AGE
+service/secureapp   ClusterIP   172.30.176.148   <none>        8080/TCP   28m
+
+NAME                        READY   UP-TO-DATE   AVAILABLE   AGE
+deployment.apps/secureapp   1/1     1            1           28m
+
+NAME                                   DESIRED   CURRENT   READY   AGE
+replicaset.apps/secureapp-586bcb5df6   1         1         1       28m
+replicaset.apps/secureapp-cfdd9686c    0         0         0       28m
+
+NAME                                       IMAGE REPOSITORY                                                      TAGS   UPDATED
+imagestream.image.openshift.io/secureapp   image-registry.openshift-image-registry.svc:5000/example1/secureapp   v1.0   28 minutes ago
+
+NAME                                 HOST/PORT                           PATH   SERVICES    PORT       TERMINATION   WILDCARD
+route.route.openshift.io/secureapp   mysecureapp.apps.ocp4.example.com          secureapp   8080-tcp   edge          None
+[student@workstation ~]$ oc get ingress
+No resources found in example1 namespace.
+[student@workstation ~]$ oc expose svc/secureapp
+Error from server (AlreadyExists): routes.route.openshift.io "secureapp" already exists
+[student@workstation ~]$ oc get route 
+NAME        HOST/PORT                           PATH   SERVICES    PORT       TERMINATION   WILDCARD
+secureapp   mysecureapp.apps.ocp4.example.com          secureapp   8080-tcp   edge          None
+[student@workstation ~]$ oc expose svc/secureapp --name=secreapp
+route.route.openshift.io/secreapp exposed
+[student@workstation ~]$ oc expose svc/secureapp --name=secreapp
+Error from server (AlreadyExists): routes.route.openshift.io "secreapp" already exists
+[student@workstation ~]$ oc get route 
+NAME        HOST/PORT                                 PATH   SERVICES    PORT       TERMINATION   WILDCARD
+secreapp    secreapp-example1.apps.ocp4.example.com          secureapp   8080-tcp                 None
+secureapp   mysecureapp.apps.ocp4.example.com                secureapp   8080-tcp   edge          None
+[student@workstation ~]$ 
+[student@workstation ~]$ 
+[student@workstation ~]$ 
+[student@workstation ~]$ oc expose svc/secureapp --name=myroute 
+route.route.openshift.io/myroute exposed
+[student@workstation ~]$ oc get route 
+NAME        HOST/PORT                                 PATH   SERVICES    PORT       TERMINATION   WILDCARD
+myroute     myroute-example1.apps.ocp4.example.com           secureapp   8080-tcp                 None
+secreapp    secreapp-example1.apps.ocp4.example.com          secureapp   8080-tcp                 None
+secureapp   mysecureapp.apps.ocp4.example.com                secureapp   8080-tcp   edge          None
+[student@workstation ~]$ # HostAlreadyClaimed 
+[student@workstation ~]$ # please ensure to delete the ingress and the route resource
+[student@workstation ~]$ # Recreate the route resource
+[student@workstation ~]$ 
+[student@workstation ~]$ oc create secret -h 
+Create a secret using specified subcommand.
+
+Usage:
+  oc create secret [flags]
+
+Available Commands:
+  docker-registry Create a secret for use with a Docker registry
+  generic         Create a secret from a local file, directory, or literal value
+  tls             Create a TLS secret
+
+Use "oc <command> --help" for more information about a given command.
+Use "oc options" for a list of global command-line options (applies to all commands).
+[student@workstation ~]$ oc create secret docker-registry  -h 
+Create a new secret for use with Docker registries.
+  
+  Dockercfg secrets are used to authenticate against Docker registries.
+  
+  When using the Docker command line to push images, you can authenticate to a given registry by running:
+      '$ docker login DOCKER_REGISTRY_SERVER --username=DOCKER_USER --password=DOCKER_PASSWORD --email=DOCKER_EMAIL'.
+  
+ That produces a ~/.dockercfg file that is used by subsequent 'docker push' and 'docker pull' commands to authenticate
+to the registry. The email address is optional.
+
+  When creating applications, you may have a Docker registry that requires authentication.  In order for the
+  nodes to pull images on your behalf, they must have the credentials.  You can provide this information
+  by creating a dockercfg secret and attaching it to your service account.
+
+Usage:
+  oc create secret docker-registry NAME --docker-username=user --docker-password=password --docker-email=email
+[--docker-server=string] [--from-file=[key=]source] [--dry-run=server|client|none] [flags]
+
+Examples:
+  # If you don't already have a .dockercfg file, you can create a dockercfg secret directly by using:
+  oc create secret docker-registry my-secret --docker-server=DOCKER_REGISTRY_SERVER --docker-username=DOCKER_USER
+--docker-password=DOCKER_PASSWORD --docker-email=DOCKER_EMAIL
+  
+  # Create a new secret named my-secret from ~/.docker/config.json
+  oc create secret docker-registry my-secret --from-file=.dockerconfigjson=path/to/.docker/config.json
+
+Options:
+      --allow-missing-template-keys=true: If true, ignore any errors in templates when a field or map key is missing in
+the template. Only applies to golang and jsonpath output formats.
+      --append-hash=false: Append a hash of the secret to its name.
+      --docker-email='': Email for Docker registry
+      --docker-password='': Password for Docker registry authentication
+      --docker-server='https://index.docker.io/v1/': Server location for Docker registry
+      --docker-username='': Username for Docker registry authentication
+      --dry-run='none': Must be "none", "server", or "client". If client strategy, only print the object that would be
+sent, without sending it. If server strategy, submit server-side request without persisting the resource.
+      --field-manager='kubectl-create': Name of the manager used to track field ownership.
+      --from-file=[]: Key files can be specified using their file path, in which case a default name will be given to
+them, or optionally with a name and file path, in which case the given name will be used.  Specifying a directory will
+iterate each named file in the directory that is a valid secret key.
+  -o, --output='': Output format. One of:
+json|yaml|name|go-template|go-template-file|template|templatefile|jsonpath|jsonpath-as-json|jsonpath-file.
+      --save-config=false: If true, the configuration of current object will be saved in its annotation. Otherwise, the
+annotation will be unchanged. This flag is useful when you want to perform kubectl apply on this object in the future.
+      --show-managed-fields=false: If true, keep the managedFields when printing objects in JSON or YAML format.
+      --template='': Template string or path to template file to use when -o=go-template, -o=go-template-file. The
+template format is golang templates [http://golang.org/pkg/text/template/#pkg-overview].
+      --validate=false: If true, use a schema to validate the input before sending it
+
+Use "oc options" for a list of global command-line options (applies to all commands).
+[student@workstation ~]$ 
+[student@workstation ~]$ oc create secret -h 
+Create a secret using specified subcommand.
+
+Usage:
+  oc create secret [flags]
+
+Available Commands:
+  docker-registry Create a secret for use with a Docker registry
+  generic         Create a secret from a local file, directory, or literal value
+  tls             Create a TLS secret
+
+Use "oc <command> --help" for more information about a given command.
+Use "oc options" for a list of global command-line options (applies to all commands).
+[student@workstation ~]$ # oc create secret docker-registry quayio --docker-server=quay.io --docker-username=sanjuraj_rh --docker-password=redhat123
+[student@workstation ~]$ oc create secret docker-registry quayio --docker-server=quay.io --docker-username=sanjuraj_rh --docker-password=redhat123
+secret/quayio created
+[student@workstation ~]$ oc get secret/quayio -o yaml 
+apiVersion: v1
+data:
+  .dockerconfigjson: eyJhdXRocyI6eyJxdWF5LmlvIjp7InVzZXJuYW1lIjoic2FuanVyYWpfcmgiLCJwYXNzd29yZCI6InJlZGhhdDEyMyIsImF1dGgiOiJjMkZ1YW5WeVlXcGZjbWc2Y21Wa2FHRjBNVEl6In19fQ==
+kind: Secret
+metadata:
+  creationTimestamp: "2022-12-29T07:06:44Z"
+  name: quayio
+  namespace: example1
+  resourceVersion: "662581"
+  uid: 3fc33fb5-f72c-4bd2-992d-f56fcd745a39
+type: kubernetes.io/dockerconfigjson
+[student@workstation ~]$ echo "eyJhdXRocyI6eyJxdWF5LmlvIjp7InVzZXJuYW1lIjoic2FuanVyYWpfcmgiLCJwYXNzd29yZCI6InJlZGhhdDEyMyIsImF1dGgiOiJjMkZ1YW5WeVlXcGZjbWc2Y21Wa2FHRjBNVEl6In19fQ==" | base64 -d 
+{"auths":{"quay.io":{"username":"sanjuraj_rh","password":"redhat123","auth":"c2FuanVyYWpfcmg6cmVkaGF0MTIz"}}}[student@workstation ~]$ 
+[student@workstation ~]$ 
+[student@workstation ~]$ 
+[student@workstation ~]$ oc delete secret/quayio
+secret "quayio" deleted
+[student@workstation ~]$ 
+
